@@ -5,7 +5,7 @@ import streamlit.components.v1 as components
 
 def show(df):
     df = pd.read_csv(df) if isinstance(df, str) else df
-    st.title("🌐 Интерактив өвчтөний замнал — PyVis Graph")
+    st.title("Өвчтөний замнал")
 
     df2 = df[['Төрөл','Тасаг','ICDCODE_NAME','ICD10 нэр']].dropna()
 
@@ -14,13 +14,12 @@ def show(df):
 
     col1, col2 = st.columns([1, 2])
 
-    # --------- FILTER ----------
     with col1:
-        st.header("🔍 Фильтерүүд")
-        f1 = st.selectbox("Төрөл", [""] + sorted(df2["Төрөл"].unique()))
-        f2 = st.selectbox("Тасаг", [""] + sorted(df2["Тасаг"].unique()))
-        f3 = st.selectbox("Онош1 (ICDCODE_NAME)", [""] + sorted(df2["ICDCODE_NAME"].unique()))
-        f4 = st.selectbox("Онош2 (ICD10 нэр)", [""] + sorted(df2["ICD10 нэр"].unique()))
+        st.header("Хайх")
+        f1 = st.selectbox("Эмнэлгийн төрөл", [""] + sorted(df2["Төрөл"].unique()))
+        f2 = st.selectbox("Эмнэлгийн тасаг", [""] + sorted(df2["Тасаг"].unique()))
+        f3 = st.selectbox("Эхний онош", [""] + sorted(df2["ICDCODE_NAME"].unique()))
+        f4 = st.selectbox("Өвчин", [""] + sorted(df2["ICD10 нэр"].unique()))
 
         filtered_df = df2.copy()
         if f1: filtered_df = filtered_df[filtered_df["Төрөл"]==f1]
@@ -28,11 +27,10 @@ def show(df):
         if f3: filtered_df = filtered_df[filtered_df["ICDCODE_NAME"]==f3]
         if f4: filtered_df = filtered_df[filtered_df["ICD10 нэр"]==f4]
 
-        st.markdown(f"**Илэрсэн мөр:** {len(filtered_df)}")
+        st.markdown(f"**Нийт:** {len(filtered_df)}")
 
-    # --------- PYVIS GRAPH ----------
     with col2:
-        st.header("📌 Интерактив Graph")
+        st.header("Дүрслэл")
 
         edges = []
         for _, r in filtered_df.iterrows():
@@ -49,8 +47,8 @@ def show(df):
             height="700px",
             width="100%",
             directed=True,
-            bgcolor="#ffffff",  # цэвэрхэн background
-            font_color="#000000"  # хар font
+            bgcolor="#ffffff",
+            font_color="#000000" 
         )
 
         nodes_added = set()
@@ -60,7 +58,7 @@ def show(df):
                     net.add_node(
                         n,
                         label=n,
-                        color="#97C2FC",  # default blue, edge-н өнгө биш
+                        color="#97C2FC",  
                         shape="dot",
                         size=20,
                         shadow=True
@@ -74,16 +72,16 @@ def show(df):
                 title=f"{row['source']} → {row['target']} : {row['freq']}",
                 color=row['color'],
                 arrows="to",
-                smooth={"type": "straight"}  # шууд сум
+                smooth={"type": "straight"}
             )
 
         net.set_options("""
-{
-  "nodes": { "font": { "size": 18 } },
-  "edges": { "font": { "size": 14 } },
-  "interaction": { "hover": true, "zoomView": true, "dragNodes": true, "dragView": true }
-}
-""")
+                        {
+                        "nodes": { "font": { "size": 18 } },
+                        "edges": { "font": { "size": 14 } },
+                        "interaction": { "hover": true, "zoomView": true, "dragNodes": true, "dragView": true }
+                        }
+                        """)
 
         net.save_graph("graph.html")
         with open("graph.html", "r", encoding="utf-8") as f:

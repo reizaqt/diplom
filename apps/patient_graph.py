@@ -1,4 +1,3 @@
-# apps/patient_graph.py
 import streamlit as st
 import pandas as pd
 import networkx as nx
@@ -11,24 +10,22 @@ def show(df):
     df['Огноо'] = pd.to_datetime(df['Огноо'], errors='coerce')
     df['Year'] = df['Огноо'].dt.year
 
-    st.title("🏥 Өвчтөн замналын граф")
-    st.markdown("### Хугацаа, тасгаар шүүж харах интерактив граф")
+    st.title("Өвчтөний бүх замналын дүрслэл")
 
     years = sorted(df['Year'].dropna().unique(), reverse=True)
-    selected_year = st.sidebar.selectbox("🕒 Он сонгох", years, index=0)
+    selected_year = st.sidebar.selectbox("Огноо", years, index=0)
 
     departments = ["Бүх тасаг"] + sorted(df['Тасаг'].dropna().unique())
-    selected_dep = st.sidebar.selectbox("🏥 Тасаг сонгох", departments)
+    selected_dep = st.sidebar.selectbox("Тасаг сонгох", departments)
 
     filtered_df = df[df['Year'] >= selected_year]
     if selected_dep != "Бүх тасаг":
         filtered_df = filtered_df[filtered_df['Тасаг'] == selected_dep]
 
-    st.sidebar.markdown(f"**Нийт мөр:** {len(filtered_df)}")
+    st.sidebar.markdown(f"**Нийт :** {len(filtered_df)}")
 
-    # Граф үүсгэх
     G = nx.DiGraph()
-    patients = filtered_df['Иргэний ID'].unique()
+    patients = filtered_df['Иргэний ID']
     colors = list(mcolors.CSS4_COLORS.keys())
     random.shuffle(colors)
     patient_color_map = {pid: colors[i % len(colors)] for i, pid in enumerate(patients)}
